@@ -12,6 +12,7 @@
   justify-self: start;
   margin-left: 20px;
   cursor: pointer;
+  width: 10%;
 }
 
 .fa-react {
