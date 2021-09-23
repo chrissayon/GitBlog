@@ -1,8 +1,18 @@
-import BlogItems from './BlogItems';
+import BlogSummary from './BlogSummary';
+import Navbar from '../Navbar/Navbar';
+
+import './Blog.css';
 
 const Blog = () => (
   <>
-    <BlogItems />
+    <Navbar />
+    <div className="blog__layout">
+      <BlogSummary />
+      <BlogSummary />
+      <BlogSummary />
+      <BlogSummary />
+      <BlogSummary />
+    </div>
   </>
 );
 
