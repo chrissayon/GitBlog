@@ -1,14 +1,15 @@
-.summary {
+.blogsummary {
   /* max-width: 30%; */
   padding: 20px 20px;
   min-height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  cursor: pointer;
 }
 
-.summary__title {
+.blogsummary__title {
 }
 
-.summary__content {
+.blogsummary__content {
 }

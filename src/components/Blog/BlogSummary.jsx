@@ -6,9 +6,9 @@ const BlogSummary = ({
   title,
   content,
 }) => (
-  <div className="summary">
-    <h1 className="summary__title">{title}</h1>
-    <p className="summary__content">{content}</p>
+  <div className="blogsummary">
+    <h1 className="blogsummary__title">{title}</h1>
+    <p className="blogsummary__content">{content}</p>
   </div>
 );
 
