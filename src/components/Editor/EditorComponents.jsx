@@ -1,12 +1,5 @@
 import { forwardRef } from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-
-export const Portal = ({ children }) => (
-  document === 'object'
-    ? ReactDOM.createPortal(children, document.body)
-    : null
-);
 
 export const Menu = forwardRef(
   (
