@@ -20,6 +20,44 @@ import CodeElement from './CodeElement';
 
 import { Leaf } from './EditorComponents';
 
+// Define our own custom set of helpers.
+const CustomEditor = {
+  isBoldMarkActive(editor) {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => n.bold === true,
+      universal: true,
+    });
+
+    return !!match;
+  },
+
+  isCodeBlockActive(editor) {
+    const [match] = Editor.nodes(editor, {
+      match: (n) => n.type === 'code',
+    });
+
+    return !!match;
+  },
+
+  toggleBoldMark(editor) {
+    const isActive = CustomEditor.isBoldMarkActive(editor);
+    Transforms.setNodes(
+      editor,
+      { bold: isActive ? null : true },
+      { match: (n) => Text.isText(n), split: true },
+    );
+  },
+
+  toggleCodeBlock(editor) {
+    const isActive = CustomEditor.isCodeBlockActive(editor);
+    Transforms.setNodes(
+      editor,
+      { type: isActive ? null : 'code' },
+      { match: (n) => Editor.isBlock(editor, n) },
+    );
+  },
+};
+
 const TextEditor = () => {
   const [value, setValue] = useState([
     {
@@ -54,27 +92,19 @@ const TextEditor = () => {
           if (!event.ctrlKey) {
             return;
           }
+
           event.preventDefault();
+
           switch (event.key) {
             case '`': {
-              const [match] = Editor.nodes(editor, {
-                match: (n) => n.type === 'code',
-              });
-              Transforms.setNodes(
-                editor,
-                { type: match ? null : 'code' },
-                { match: (n) => Editor.isBlock(editor, n) },
-              );
+              event.preventDefault();
+              CustomEditor.toggleCodeBlock(editor);
               break;
             }
 
             case 'b': {
               event.preventDefault();
-              Transforms.setNodes(
-                editor,
-                { bold: true },
-                { match: (n) => Text.isText(n), split: true },
-              );
+              CustomEditor.toggleBoldMark(editor);
               break;
             }
 
