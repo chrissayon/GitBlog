@@ -97,13 +97,11 @@ const TextEditor = () => {
 
           switch (event.key) {
             case '`': {
-              event.preventDefault();
               CustomEditor.toggleCodeBlock(editor);
               break;
             }
 
             case 'b': {
-              event.preventDefault();
               CustomEditor.toggleBoldMark(editor);
               break;
             }
