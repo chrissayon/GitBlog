@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import LandingPage from './components/Pages/LandingPage';
 import Blog from './components/Blog/Blog';
-import CustomEditor from './components/Editor/CustomEditor';
+import TextEditor from './components/Editor/TextEditor';
 
 import './App.css';
 
@@ -15,7 +15,7 @@ function App() {
             <LandingPage />
           </Route>
           <Route path="/Editor">
-            <CustomEditor />
+            <TextEditor />
           </Route>
           <Route path="/">
             <Blog />

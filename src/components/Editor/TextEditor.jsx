@@ -4,6 +4,7 @@ import {
   Editor,
   createEditor,
   Transforms,
+  Text,
 } from 'slate';
 
 import {
@@ -17,7 +18,9 @@ import { withHistory } from 'slate-history';
 
 import CodeElement from './CodeElement';
 
-const CustomEditor = () => {
+import { Leaf } from './EditorComponents';
+
+const TextEditor = () => {
   const [value, setValue] = useState([
     {
       type: 'paragraph',
@@ -36,6 +39,8 @@ const CustomEditor = () => {
     }
   }, []);
 
+  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
+
   return (
     <Slate
       editor={editor}
@@ -44,16 +49,38 @@ const CustomEditor = () => {
     >
       <Editable
         renderElement={renderElement}
+        renderLeaf={renderLeaf}
         onKeyDown={(event) => {
-          if (event.key === '`' && event.ctrlKey) {
-            // Prevent the "`" from being inserted by default.
-            event.preventDefault();
-            // Otherwise, set the currently selected blocks type to "code".
-            Transforms.setNodes(
-              editor,
-              { type: 'code' },
-              { match: (n) => Editor.isBlock(editor, n) },
-            );
+          if (!event.ctrlKey) {
+            return;
+          }
+          event.preventDefault();
+          switch (event.key) {
+            case '`': {
+              const [match] = Editor.nodes(editor, {
+                match: (n) => n.type === 'code',
+              });
+              Transforms.setNodes(
+                editor,
+                { type: match ? null : 'code' },
+                { match: (n) => Editor.isBlock(editor, n) },
+              );
+              break;
+            }
+
+            case 'b': {
+              event.preventDefault();
+              Transforms.setNodes(
+                editor,
+                { bold: true },
+                { match: (n) => Text.isText(n), split: true },
+              );
+              break;
+            }
+
+            default: {
+              break;
+            }
           }
         }}
       />
@@ -61,4 +88,4 @@ const CustomEditor = () => {
   );
 };
 
-export default CustomEditor;
+export default TextEditor;
