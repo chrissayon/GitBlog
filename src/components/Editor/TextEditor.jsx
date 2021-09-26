@@ -8,15 +8,11 @@ import {
   Slate,
   Editable,
   withReact,
-  DefaultElement,
 } from 'slate-react';
 
 import { withHistory } from 'slate-history';
 
-import CodeElement from './CodeElement';
-
-import { Leaf } from './EditorComponents';
-
+import { renderElementNoCallback, renderLeafNoCallback } from './EditorComponents';
 import EditorUtilities from './EditorUtilities';
 
 const TextEditor = () => {
@@ -29,16 +25,8 @@ const TextEditor = () => {
 
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
-  const renderElement = useCallback((elementRenderValue) => {
-    switch (elementRenderValue.element.type) {
-      case 'code':
-        return <CodeElement {...elementRenderValue} />;
-      default:
-        return <DefaultElement {...elementRenderValue} />;
-    }
-  }, []);
-
-  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
+  const renderElement = useCallback(renderElementNoCallback, []);
+  const renderLeaf = useCallback(renderLeafNoCallback, []);
 
   return (
     <Slate

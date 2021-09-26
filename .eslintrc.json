@@ -21,6 +21,7 @@
         "react/react-in-jsx-scope": "off",
         "linebreak-style": "off",
         //Only needed for slate code, spreading is an anti pattern and not done anywhere else
-        "react/jsx-props-no-spreading": "off"         
+        "react/jsx-props-no-spreading": "off",
+        "react/prop-types": "off"
     }
 }
