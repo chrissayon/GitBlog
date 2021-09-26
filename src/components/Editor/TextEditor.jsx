@@ -1,10 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import {
-  Editor,
   createEditor,
-  Transforms,
-  Text,
 } from 'slate';
 
 import {
@@ -20,43 +17,7 @@ import CodeElement from './CodeElement';
 
 import { Leaf } from './EditorComponents';
 
-// Define our own custom set of helpers.
-const CustomEditor = {
-  isBoldMarkActive(editor) {
-    const [match] = Editor.nodes(editor, {
-      match: (n) => n.bold === true,
-      universal: true,
-    });
-
-    return !!match;
-  },
-
-  isCodeBlockActive(editor) {
-    const [match] = Editor.nodes(editor, {
-      match: (n) => n.type === 'code',
-    });
-
-    return !!match;
-  },
-
-  toggleBoldMark(editor) {
-    const isActive = CustomEditor.isBoldMarkActive(editor);
-    Transforms.setNodes(
-      editor,
-      { bold: isActive ? null : true },
-      { match: (n) => Text.isText(n), split: true },
-    );
-  },
-
-  toggleCodeBlock(editor) {
-    const isActive = CustomEditor.isCodeBlockActive(editor);
-    Transforms.setNodes(
-      editor,
-      { type: isActive ? null : 'code' },
-      { match: (n) => Editor.isBlock(editor, n) },
-    );
-  },
-};
+import EditorUtilities from './EditorUtilities';
 
 const TextEditor = () => {
   const [value, setValue] = useState([
@@ -97,12 +58,12 @@ const TextEditor = () => {
 
           switch (event.key) {
             case '`': {
-              CustomEditor.toggleCodeBlock(editor);
+              EditorUtilities.toggleCodeBlock(editor);
               break;
             }
 
             case 'b': {
-              CustomEditor.toggleBoldMark(editor);
+              EditorUtilities.toggleBoldMark(editor);
               break;
             }
 
