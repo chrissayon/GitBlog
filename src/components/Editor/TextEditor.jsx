@@ -14,6 +14,8 @@ import { withHistory } from 'slate-history';
 
 import { renderElementNoCallback, renderLeafNoCallback } from './EditorComponents';
 import EditorUtilities from './EditorUtilities';
+import './TextEditor.css';
+import Toolbar from './Toolbar';
 
 const TextEditor = () => {
   const [value, setValue] = useState([
@@ -34,7 +36,9 @@ const TextEditor = () => {
       value={value}
       onChange={(newValue) => setValue(newValue)}
     >
+      <Toolbar />
       <Editable
+        className="editor__wrapper"
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         onKeyDown={(event) => {

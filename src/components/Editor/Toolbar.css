@@ -1,0 +1,11 @@
+.toolbar {
+  display: flex;
+  height: 40px;
+  background-color: lightblue;
+  align-items: center;
+  justify-items: center;
+}
+
+.fa-save {
+  cursor: pointer;
+}

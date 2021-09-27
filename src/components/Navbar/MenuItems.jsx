@@ -10,7 +10,7 @@ const MenuItems = [
     cName: 'nav-links',
   },
   {
-    title: 'Contact Us',
+    title: 'Menu',
     url: '#',
     cName: 'nav-links',
   },
