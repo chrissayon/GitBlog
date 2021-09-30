@@ -1,83 +1,184 @@
-import { useCallback, useMemo, useState } from 'react';
+import {
+  useState,
+  useRef,
+  useCallback,
+} from 'react';
 
 import {
-  createEditor,
-} from 'slate';
+  Editor,
+  EditorState,
+  RichUtils,
+} from 'draft-js';
 
-import {
-  Slate,
-  Editable,
-
-  withReact,
-} from 'slate-react';
-
-import { withHistory } from 'slate-history';
-
-import { renderElementNoCallback, renderLeafNoCallback } from './EditorComponents';
-import EditorUtilities from './EditorUtilities';
 import './TextEditor.css';
-import { Toolbar, MarkButton, BlockButton } from './Toolbar';
 
-const TextEditor = () => {
-  const [value, setValue] = useState([
-    {
-      type: 'paragraph',
-      children: [{ text: 'A line of text in a paragraph.' }],
-    },
-  ]);
+// Custom overrides for "code" style.
+const styleMap = {
+  CODE: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
+    fontSize: 16,
+    padding: 2,
+  },
+};
 
-  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+const getBlockStyle = (block) => {
+  switch (block.getType()) {
+    case 'blockquote':
+      return 'blockquote';
+    default:
+      return null;
+  }
+};
 
-  const renderElement = useCallback(renderElementNoCallback, []);
-  const renderLeaf = useCallback(renderLeafNoCallback, []);
+const StyleButton = ({
+  onToggle,
+  active,
+  label,
+  style,
+}) => {
+  let className = 'controls__styleButton ';
+  if (active) {
+    className += 'controls__activeButton';
+  }
 
   return (
-    <Slate
-      editor={editor}
-      value={value}
-      onChange={(newValue) => setValue(newValue)}
+    <span
+      className={className}
+      role="button"
+      tabIndex="0"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onToggle(style);
+      }}
     >
-      <Toolbar>
-        <MarkButton format="bold" icon="format_bold" />
-        <MarkButton format="italic" icon="format_italic" />
-        <MarkButton format="underline" icon="format_underlined" />
-        <MarkButton format="code" icon="code" />
-        <BlockButton format="heading-one" icon="looks_one" />
-        <BlockButton format="heading-two" icon="looks_two" />
-        <BlockButton format="block-quote" icon="format_quote" />
-        <BlockButton format="numbered-list" icon="format_list_numbered" />
-        <BlockButton format="bulleted-list" icon="format_list_bulleted" />
-      </Toolbar>
-      <Editable
-        className="editor__wrapper"
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        onKeyDown={(event) => {
-          if (!event.ctrlKey) {
-            return;
-          }
-
-          event.preventDefault();
-
-          switch (event.key) {
-            case '`': {
-              EditorUtilities.toggleCodeBlock(editor);
-              break;
-            }
-
-            case 'b': {
-              EditorUtilities.toggleBoldMark(editor);
-              break;
-            }
-
-            default: {
-              break;
-            }
-          }
-        }}
-      />
-    </Slate>
+      {label}
+    </span>
   );
 };
 
-export default TextEditor;
+const BLOCK_TYPES = [
+  { label: 'H1', style: 'header-one' },
+  { label: 'H2', style: 'header-two' },
+  { label: 'H3', style: 'header-three' },
+  { label: 'H4', style: 'header-four' },
+  { label: 'H5', style: 'header-five' },
+  { label: 'H6', style: 'header-six' },
+  { label: 'Blockquote', style: 'blockquote' },
+  { label: 'UL', style: 'unordered-list-item' },
+  { label: 'OL', style: 'ordered-list-item' },
+  { label: 'Code Block', style: 'code-block' },
+];
+
+const BlockStyleControls = ({
+  editorState,
+  onToggle,
+}) => {
+  const selection = editorState.getSelection();
+  const blockType = editorState
+    .getCurrentContent()
+    .getBlockForKey(selection.getStartKey())
+    .getType();
+
+  return (
+    <div className="controls">
+      {BLOCK_TYPES.map((type) => (
+        <StyleButton
+          key={type.label}
+          active={type.style === blockType}
+          label={type.label}
+          onToggle={onToggle}
+          style={type.style}
+        />
+      ))}
+    </div>
+  );
+};
+
+const INLINE_STYLES = [
+  { label: 'Bold', style: 'BOLD' },
+  { label: 'Italic', style: 'ITALIC' },
+  { label: 'Underline', style: 'UNDERLINE' },
+  { label: 'Monospace', style: 'CODE' },
+];
+
+const InlineStyleControls = ({
+  editorState,
+  onToggle,
+}) => {
+  const currentStyle = editorState.getCurrentInlineStyle();
+  return (
+    <div className="controls">
+      {INLINE_STYLES.map((type) => (
+        <StyleButton
+          key={type.label}
+          active={currentStyle.has(type.style)}
+          label={type.label}
+          onToggle={onToggle}
+          style={type.style}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default function MyEditor() {
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+
+  const editor = useRef(null);
+
+  const focusEditor = () => {
+    editor.current.focus();
+  };
+
+  const handleKeyCommand = useCallback(
+    (command, localEditorState) => {
+      const newState = RichUtils.handleKeyCommand(localEditorState, command);
+
+      if (newState) {
+        setEditorState(newState);
+        return 'handled';
+      }
+
+      return 'not-handled';
+    },
+    [editorState, setEditorState],
+  );
+
+  return (
+    <div
+      style={{ border: '1px solid black', minHeight: '6em', cursor: 'text' }}
+      onClick={focusEditor}
+      onKeyPress={() => {}} // Empty functon to comply with linting
+      role="textbox"
+      tabIndex="0"
+    >
+      <BlockStyleControls
+        editorState={editorState}
+        onToggle={(blockType) => {
+          const newState = RichUtils.toggleBlockType(editorState, blockType);
+          setEditorState(newState);
+        }}
+      />
+      <InlineStyleControls
+        editorState={editorState}
+        onToggle={(inlineStyle) => {
+          const newState = RichUtils.toggleInlineStyle(
+            editorState,
+            inlineStyle,
+          );
+          setEditorState(newState);
+        }}
+      />
+      <Editor
+        blockStyleFn={getBlockStyle}
+        ref={editor}
+        customStyleMap={styleMap}
+        editorState={editorState}
+        onChange={setEditorState}
+        handleKeyCommand={handleKeyCommand}
+        placeholder="Write something!"
+      />
+    </div>
+  );
+}
