@@ -64,26 +64,36 @@ export default function MyEditor() {
       role="textbox"
       tabIndex="0"
     >
-      <BlockStyleControls
-        editorState={editorState}
-        onToggle={(blockType) => {
-          const newState = RichUtils.toggleBlockType(
-            editorState,
-            blockType,
-          );
-          setEditorState(newState);
-        }}
-      />
-      <InlineStyleControls
-        editorState={editorState}
-        onToggle={(inlineStyle) => {
-          const newState = RichUtils.toggleInlineStyle(
-            editorState,
-            inlineStyle,
-          );
-          setEditorState(newState);
-        }}
-      />
+      <div className="textEditor__toolbar">
+        <div>
+          <BlockStyleControls
+            editorState={editorState}
+            onToggle={(blockType) => {
+              const newState = RichUtils.toggleBlockType(
+                editorState,
+                blockType,
+              );
+              setEditorState(newState);
+            }}
+          />
+          <InlineStyleControls
+            editorState={editorState}
+            onToggle={(inlineStyle) => {
+              const newState = RichUtils.toggleInlineStyle(
+                editorState,
+                inlineStyle,
+              );
+              setEditorState(newState);
+            }}
+          />
+        </div>
+        <button
+          type="button"
+        >
+          Save
+        </button>
+      </div>
+      <hr />
       <Editor
         blockStyleFn={getBlockStyle}
         ref={editor}

@@ -7,10 +7,16 @@
 
 .controls__styleButton {
   color: #999;
+  /* background-color: lightcyan; */
+  /* border: 1px solid green; */
   cursor: pointer;
   margin-right: 16px;
   padding: 2px 0;
   display: inline-block;
+}
+
+.controls__styleButton:hover {
+  background-color: lightcyan;
 }
 
 .controls__activeButton {
