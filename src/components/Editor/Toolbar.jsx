@@ -1,176 +1,92 @@
-import { forwardRef } from 'react';
-import { cx, css } from '@emotion/css';
-
 import './Toolbar.css';
 
-import {
-  Editor,
-  Transforms,
-  Element as SlateElement,
-} from 'slate';
-
-import {
-  useSlate,
-} from 'slate-react';
-
-const LIST_TYPES = ['numbered-list', 'bulleted-list'];
-
-export const Button = forwardRef(
-  (
-    {
-      className,
-      active,
-      reversed,
-      ...props
-    },
-    ref,
-  ) => (
-    <span
-      {...props}
-      ref={ref}
-      className={cx(
-        className,
-        css`
-          cursor: pointer;
-          color: ${reversed
-          ? active
-            ? 'white'
-            : '#aaa'
-          : active
-            ? 'black'
-            : '#ccc'};
-        `,
-      )}
-    />
-  ),
-);
-
-export const Icon = forwardRef(
-  (
-    { className, ...props },
-    ref,
-  ) => (
-    <span
-      {...props}
-      ref={ref}
-      className={cx(
-        'material-icons',
-        className,
-        css`
-          font-size: 18px;
-          vertical-align: text-bottom;
-        `,
-      )}
-    />
-  ),
-);
-
-export const Menu = forwardRef(
-  (
-    { className, ...props },
-    ref,
-  ) => (
-    <div
-      {...props}
-      ref={ref}
-      className={cx(
-        className,
-        css`
-          & > * {
-            display: inline-block;
-          }
-          & > * + * {
-            margin-left: 15px;
-          }
-        `,
-      )}
-    />
-  ),
-);
-
-const isMarkActive = (editor, format) => {
-  const marks = Editor.marks(editor);
-  return marks ? marks[format] === true : false;
-};
-
-const toggleMark = (editor, format) => {
-  const isActive = isMarkActive(editor, format);
-
-  if (isActive) {
-    Editor.removeMark(editor, format);
-  } else {
-    Editor.addMark(editor, format, true);
+const StyleButton = ({
+  onToggle,
+  active,
+  label,
+  style,
+}) => {
+  let className = 'controls__styleButton ';
+  if (active) {
+    className += 'controls__activeButton';
   }
-};
 
-export const MarkButton = ({ format, icon }) => {
-  const editor = useSlate();
   return (
-    <Button
-      active={isMarkActive(editor, format)}
-      onMouseDown={(event) => {
-        event.preventDefault();
-        toggleMark(editor, format);
+    <span
+      className={className}
+      role="button"
+      tabIndex="0"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onToggle(style);
       }}
     >
-      <Icon>{icon}</Icon>
-    </Button>
+      {label}
+    </span>
   );
 };
 
-const isBlockActive = (editor, format) => {
-  const [match] = Editor.nodes(editor, {
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format,
-  });
+const BLOCK_TYPES = [
+  { label: 'H1', style: 'header-one' },
+  { label: 'H2', style: 'header-two' },
+  { label: 'H3', style: 'header-three' },
+  { label: 'H4', style: 'header-four' },
+  { label: 'H5', style: 'header-five' },
+  { label: 'H6', style: 'header-six' },
+  { label: 'Blockquote', style: 'blockquote' },
+  { label: 'UL', style: 'unordered-list-item' },
+  { label: 'OL', style: 'ordered-list-item' },
+  { label: 'Code Block', style: 'code-block' },
+];
 
-  return !!match;
-};
+export const BlockStyleControls = ({
+  editorState,
+  onToggle,
+}) => {
+  const selection = editorState.getSelection();
+  const blockType = editorState
+    .getCurrentContent()
+    .getBlockForKey(selection.getStartKey())
+    .getType();
 
-const toggleBlock = (editor) => {
-  // const isActive = isBlockActive(editor, format);
-  // const isList = LIST_TYPES.includes(format);
-
-  Transforms.unwrapNodes(editor, {
-    match: (n) => LIST_TYPES.includes(
-      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type,
-    ),
-    split: true,
-  });
-};
-
-export const BlockButton = ({ format, icon }) => {
-  const editor = useSlate();
   return (
-    <Button
-      active={isBlockActive(editor, format)}
-      onMouseDown={(event) => {
-        event.preventDefault();
-        toggleBlock(editor, format);
-      }}
-    >
-      <Icon>{icon}</Icon>
-    </Button>
+    <div className="controls">
+      {BLOCK_TYPES.map((type) => (
+        <StyleButton
+          key={type.label}
+          active={type.style === blockType}
+          label={type.label}
+          onToggle={onToggle}
+          style={type.style}
+        />
+      ))}
+    </div>
   );
 };
 
-export const Toolbar = forwardRef(
-  (
-    { className, ...props },
-    ref,
-  ) => (
-    <Menu
-      {...props}
-      ref={ref}
-      className={cx(
-        className,
-        css`
-          position: relative;
-          padding: 1px 18px 17px;
-          margin: 0 -20px;
-          border-bottom: 2px solid #eee;
-          margin-bottom: 20px;
-        `,
-      )}
-    />
-  ),
-);
+const INLINE_STYLES = [
+  { label: 'Bold', style: 'BOLD' },
+  { label: 'Italic', style: 'ITALIC' },
+  { label: 'Underline', style: 'UNDERLINE' },
+  { label: 'Monospace', style: 'CODE' },
+];
+
+export const InlineStyleControls = ({
+  editorState,
+  onToggle,
+}) => {
+  const currentStyle = editorState.getCurrentInlineStyle();
+  return (
+    <div className="controls">
+      {INLINE_STYLES.map((type) => (
+        <StyleButton
+          key={type.label}
+          active={currentStyle.has(type.style)}
+          label={type.label}
+          onToggle={onToggle}
+          style={type.style}
+        />
+      ))}
+    </div>
+  );
+};
