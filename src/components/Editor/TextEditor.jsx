@@ -58,7 +58,7 @@ export default function MyEditor() {
 
   return (
     <div
-      style={{ border: '1px solid black', minHeight: '6em', cursor: 'text' }}
+      className="textEditor"
       onClick={focusEditor}
       onKeyPress={() => {}} // Empty functon to comply with linting
       role="textbox"
@@ -67,7 +67,10 @@ export default function MyEditor() {
       <BlockStyleControls
         editorState={editorState}
         onToggle={(blockType) => {
-          const newState = RichUtils.toggleBlockType(editorState, blockType);
+          const newState = RichUtils.toggleBlockType(
+            editorState,
+            blockType,
+          );
           setEditorState(newState);
         }}
       />
